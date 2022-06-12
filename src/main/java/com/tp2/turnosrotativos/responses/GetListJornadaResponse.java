@@ -5,8 +5,11 @@ import java.time.LocalTime;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.tp2.turnosrotativos.entities.TipoJornada;
+import com.tp2.turnosrotativos.enums.TipoJornadaEnum;
 
 public class GetListJornadaResponse {
+	
+	private Long id;
 	
 	@JsonFormat(pattern="dd-MM-yyyy")
     private LocalDate fecha;
@@ -17,11 +20,12 @@ public class GetListJornadaResponse {
 	@JsonFormat(pattern = "HH:mm:ss")
 	private LocalTime horaSalida;
 	
-    private String tipoJornada;
+    private TipoJornadaEnum tipoJornada;
 
-	public GetListJornadaResponse(LocalDate fecha, LocalTime horaEntrada, LocalTime horaSalida,
-			String tipoJornada) {
+	public GetListJornadaResponse(Long id, LocalDate fecha, LocalTime horaEntrada, LocalTime horaSalida,
+			TipoJornadaEnum tipoJornada) {
 		super();
+		this.id = id;
 		this.fecha = fecha;
 		this.horaEntrada = horaEntrada;
 		this.horaSalida = horaSalida;
@@ -29,6 +33,15 @@ public class GetListJornadaResponse {
 	}
 
 	public GetListJornadaResponse() {
+	}
+	
+
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
 	}
 
 	public LocalDate getFecha() {
@@ -55,11 +68,11 @@ public class GetListJornadaResponse {
 		this.horaSalida = horaSalida;
 	}
 
-	public String getTipoJornada() {
+	public TipoJornadaEnum getTipoJornada() {
 		return tipoJornada;
 	}
 
-	public void setTipoJornada(String tipoJornada) {
+	public void setTipoJornada(TipoJornadaEnum tipoJornada) {
 		this.tipoJornada = tipoJornada;
 	}
 

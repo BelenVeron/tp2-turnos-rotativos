@@ -1,11 +1,13 @@
 package com.tp2.turnosrotativos.responses;
 
+import com.tp2.turnosrotativos.enums.TipoJornadaEnum;
+
 public class GetHorasCargadasResponse {
 	
-	private String tipo;
+	private TipoJornadaEnum tipo;
 	private Float horasCargadas;
 	
-	public GetHorasCargadasResponse(String tipo, Float horasCargadas) {
+	public GetHorasCargadasResponse(TipoJornadaEnum tipo, Float horasCargadas) {
 		this.tipo = tipo;
 		this.horasCargadas = horasCargadas;
 	}
@@ -13,11 +15,11 @@ public class GetHorasCargadasResponse {
 	public GetHorasCargadasResponse() {
 	}
 
-	public String getTipo() {
+	public TipoJornadaEnum getTipo() {
 		return tipo;
 	}
 
-	public void setTipo(String tipo) {
+	public void setTipo(TipoJornadaEnum tipo) {
 		this.tipo = tipo;
 	}
 

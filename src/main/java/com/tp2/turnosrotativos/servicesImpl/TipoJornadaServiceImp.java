@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.tp2.turnosrotativos.entities.TipoJornada;
+import com.tp2.turnosrotativos.enums.TipoJornadaEnum;
 import com.tp2.turnosrotativos.repositories.TipoJornadaRepository;
 import com.tp2.turnosrotativos.services.TipoJornadaService;
 
@@ -28,8 +29,8 @@ public class TipoJornadaServiceImp implements TipoJornadaService{
 	}
 
 	@Override
-	public TipoJornada findByTipo(String tipo) {
-		return repository.findByTipo(tipo);
+	public TipoJornada findByTipo(TipoJornadaEnum tipoJornadaEnum) {
+		return repository.findByTipo(tipoJornadaEnum);
 	}
 
 }

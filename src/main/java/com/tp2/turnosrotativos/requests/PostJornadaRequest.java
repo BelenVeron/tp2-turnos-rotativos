@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.tp2.turnosrotativos.enums.TipoJornadaEnum;
 
 public class PostJornadaRequest {
 	

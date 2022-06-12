@@ -19,6 +19,7 @@ import com.tp2.turnosrotativos.entities.Jornada;
 import com.tp2.turnosrotativos.responses.GetHorasCargadasResponse;
 import com.tp2.turnosrotativos.services.EmpleadoService;
 import com.tp2.turnosrotativos.services.JornadaService;
+import com.tp2.turnosrotativos.validators.DaysValidator;
 
 import static java.time.temporal.ChronoUnit.MINUTES;;
 
@@ -32,6 +33,8 @@ public class EmpleadoController {
 	
 	@Autowired
 	private JornadaService jornadaService;
+	
+	private DaysValidator daysValidator = new DaysValidator();
 	
 	@PostMapping("/add")
 	public ResponseEntity<?> create(@RequestBody Empleado empleado){
@@ -57,7 +60,7 @@ public class EmpleadoController {
 				.filter(element -> element.getTipo().equals(jornada.getTipoJornada().getTipo()))
 				.findFirst().isPresent()) {
 				GetHorasCargadasResponse newTipo = new GetHorasCargadasResponse();
-				newTipo.setHorasCargadas(((float) (MINUTES.between(jornada.getHoraEntrada(), jornada.getHoraSalida()))/60));
+				newTipo.setHorasCargadas(daysValidator.getHours(jornada));
 				newTipo.setTipo(jornada.getTipoJornada().getTipo());
 				
 				response.add(newTipo);
@@ -67,7 +70,7 @@ public class EmpleadoController {
 					.forEach(element -> {
 						if(element.getTipo() == jornada.getTipoJornada().getTipo()) {
 							element.setHorasCargadas(
-									element.getHorasCargadas() + ((float) (MINUTES.between(jornada.getHoraEntrada(), jornada.getHoraSalida()))/60)
+									element.getHorasCargadas() + (daysValidator.getHours(jornada))
 									);
 						}
 					});

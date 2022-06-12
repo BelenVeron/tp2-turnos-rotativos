@@ -6,6 +6,8 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.validation.constraints.NotNull;
 
+import com.tp2.turnosrotativos.enums.TipoJornadaEnum;
+
 @Entity
 public class TipoJornada{
 	
@@ -14,9 +16,11 @@ public class TipoJornada{
 	private Long id;
 	
 	@NotNull
-	private String tipo;
+	private TipoJornadaEnum tipo;
 
-	public TipoJornada(@NotNull String tipo) {
+	
+	public TipoJornada(@NotNull TipoJornadaEnum tipo) {
+		super();
 		this.tipo = tipo;
 	}
 
@@ -31,13 +35,12 @@ public class TipoJornada{
 		this.id = id;
 	}
 
-	public String getTipo() {
+	public TipoJornadaEnum getTipo() {
 		return tipo;
 	}
 
-	public void setTipo(String tipo) {
+	public void setTipo(TipoJornadaEnum tipo) {
 		this.tipo = tipo;
 	}
 	
-
 }
