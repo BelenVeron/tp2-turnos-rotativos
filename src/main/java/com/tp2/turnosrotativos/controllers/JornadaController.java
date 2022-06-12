@@ -1,5 +1,6 @@
 package com.tp2.turnosrotativos.controllers;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import com.tp2.turnosrotativos.entities.Empleado;
 import com.tp2.turnosrotativos.entities.Jornada;
 import com.tp2.turnosrotativos.requests.PostJornadaRequest;
+import com.tp2.turnosrotativos.responses.GetListJornadaResponse;
 import com.tp2.turnosrotativos.services.EmpleadoService;
 import com.tp2.turnosrotativos.services.JornadaService;
 import com.tp2.turnosrotativos.services.TipoJornadaService;
@@ -40,14 +42,24 @@ public class JornadaController {
 		jornada.setFecha(jornadaDTO.getFecha());
 		jornada.setHoraEntrada(jornadaDTO.getHoraEntrada());
 		jornada.setHoraSalida(jornadaDTO.getHoraSalida());
-		jornada.setTipo(tipoJornadaService.findByTipo(jornadaDTO.getTipo()));
+		jornada.setTipoJornada(tipoJornadaService.findByTipo(jornadaDTO.getTipo()));
 		jornadaService.save(jornada);
 		return new ResponseEntity(jornada, HttpStatus.OK);
 	}
 	
 	@GetMapping("/list-jornadas/{empleado-id}")
-	public ResponseEntity<List<Jornada>> listAll(@PathVariable("empleado-id") Long empleadoId, Pageable pageable){
-		List<Jornada> list = jornadaService.list(empleadoId, pageable);
+	public ResponseEntity<List<Jornada>> listAll(@PathVariable("empleado-id") Long empleadoId){
+		List<Jornada> listJornada = jornadaService.list(empleadoId);
+		List<GetListJornadaResponse> list = new ArrayList<GetListJornadaResponse>();
+		listJornada.stream().forEach(
+				jornada -> {
+					GetListJornadaResponse element = new GetListJornadaResponse();
+					element.setFecha(jornada.getFecha());
+					element.setHoraEntrada(jornada.getHoraEntrada());
+					element.setHoraSalida(jornada.getHoraSalida());
+					element.setTipoJornada(jornada.getTipoJornada().getTipo());
+					list.add(element);
+				});
 		return new ResponseEntity(list, HttpStatus.OK);
 	}
 

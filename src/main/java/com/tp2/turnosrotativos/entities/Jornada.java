@@ -75,11 +75,11 @@ public class Jornada {
 		this.id = id;
 	}
 
-	public TipoJornada getTipo() {
+	public TipoJornada getTipoJornada() {
 		return tipoJornada;
 	}
 
-	public void setTipo(TipoJornada tipoJornada) {
+	public void setTipoJornada(TipoJornada tipoJornada) {
 		this.tipoJornada = tipoJornada;
 	}
 
@@ -106,6 +106,13 @@ public class Jornada {
 	public void setHoraSalida(LocalTime horaSalida) {
 		this.horaSalida = horaSalida;
 	}
+
+	@Override
+	public String toString() {
+		return "Jornada [id=" + id + ", fecha=" + fecha + ", horaEntrada=" + horaEntrada + ", horaSalida=" + horaSalida
+				+ ", empleado=" + empleado + ", tipoJornada=" + tipoJornada + "]";
+	}
+	
 	
 
 }

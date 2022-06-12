@@ -1,5 +1,6 @@
 package com.tp2.turnosrotativos.controllers;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.tp2.turnosrotativos.entities.Jornada;
 import com.tp2.turnosrotativos.entities.TipoJornada;
+import com.tp2.turnosrotativos.responses.GetListJornadaResponse;
 import com.tp2.turnosrotativos.services.TipoJornadaService;
 
 @Controller
@@ -30,7 +32,7 @@ public class TipoJornadaController {
 	}
 	
 	@GetMapping("/list-tipo-jornadas")
-	public ResponseEntity<List<Jornada>> listAll(){
+	public ResponseEntity<List<TipoJornada>> listAll(){
 		List<TipoJornada> list = service.list();
 		return new ResponseEntity(list, HttpStatus.OK);
 	}

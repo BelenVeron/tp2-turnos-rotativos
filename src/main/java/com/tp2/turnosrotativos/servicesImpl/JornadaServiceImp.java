@@ -24,8 +24,8 @@ public class JornadaServiceImp implements JornadaService{
 	}
 
 	@Override
-	public List<Jornada> list(Long empleadoId, Pageable pageable) {
-		return repository.findByEmpleadoId(empleadoId, pageable);
+	public List<Jornada> list(Long empleadoId) {
+		return repository.findByEmpleadoId(empleadoId);
 	}
 
 }
