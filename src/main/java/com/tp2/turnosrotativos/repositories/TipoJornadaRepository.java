@@ -11,4 +11,6 @@ public interface TipoJornadaRepository extends JpaRepository<TipoJornada, Long>{
 
 	TipoJornada findByTipo(TipoJornadaEnum tipoJornadaEnum);
 
+	boolean existsByTipo(TipoJornadaEnum valueOfDescription);
+
 }

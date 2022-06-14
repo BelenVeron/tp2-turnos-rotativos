@@ -10,4 +10,5 @@ public interface TipoJornadaService {
 	public void save(TipoJornada tipoJornada);
 	public List<TipoJornada> list();
 	public TipoJornada findByTipo(TipoJornadaEnum tipoJornadaEnum);
+	public boolean existsByTipo(String tipo);
 }

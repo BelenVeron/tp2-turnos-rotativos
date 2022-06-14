@@ -33,4 +33,9 @@ public class TipoJornadaServiceImp implements TipoJornadaService{
 		return repository.findByTipo(tipoJornadaEnum);
 	}
 
+	@Override
+	public boolean existsByTipo(String tipo) {
+		return repository.existsByTipo(TipoJornadaEnum.valueOfDescription(tipo));
+	}
+
 }

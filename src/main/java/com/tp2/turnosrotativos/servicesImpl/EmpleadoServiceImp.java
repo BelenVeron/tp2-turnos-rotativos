@@ -33,4 +33,19 @@ public class EmpleadoServiceImp implements EmpleadoService {
 		return repository.findById(id);
 	}
 
+	@Override
+	public boolean existsByDni(String dni) {
+		return repository.existsByDni(dni);
+	}
+
+	@Override
+	public boolean existsById(Long empleadoId) {
+		return repository.existsById(empleadoId);
+	}
+
+	@Override
+	public Empleado findByDni(String dni) {
+		return repository.findByDni(dni);
+	}
+
 }

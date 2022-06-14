@@ -1,5 +1,6 @@
 package com.tp2.turnosrotativos.entities;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.persistence.GeneratedValue;
@@ -15,13 +16,50 @@ public class Empleado {
 	private Long id;
 	@NotNull
 	@Size(max = 100)
-	private String name;
+	private String nombre;
+	@NotNull
+	@Size(max = 100)
+	private String apellido;
+	@Column(unique=true)
+	@NotNull
+	@Size(max = 100)
+	private String dni;
 	
-	public Empleado(@NotNull @Size(max = 100) String name) {
-		this.name = name;
+	public Empleado(@NotNull @Size(max = 100) String nombre, @NotNull @Size(max = 100) String apellido,
+			@NotNull @Size(max = 100) String dni) {
+		super();
+		this.nombre = nombre;
+		this.apellido = apellido;
+		this.dni = dni;
+	}
+
+	public Empleado() {
 	}
 	
-	public Empleado() {
+	
+
+	public String getNombre() {
+		return nombre;
+	}
+
+	public void setNombre(String nombre) {
+		this.nombre = nombre;
+	}
+
+	public String getApellido() {
+		return apellido;
+	}
+
+	public void setApellido(String apellido) {
+		this.apellido = apellido;
+	}
+
+	public String getDni() {
+		return dni;
+	}
+
+	public void setDni(String dni) {
+		this.dni = dni;
 	}
 
 	public Long getId() {
@@ -31,16 +69,5 @@ public class Empleado {
 	public void setId(Long id) {
 		this.id = id;
 	}
-
-	public String getName() {
-		return name;
-	}
-
-	public void setName(String name) {
-		this.name = name;
-	}
-	
-	
-	
 	
 }

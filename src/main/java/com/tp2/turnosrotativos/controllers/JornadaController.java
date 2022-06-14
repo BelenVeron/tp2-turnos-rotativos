@@ -1,5 +1,6 @@
 package com.tp2.turnosrotativos.controllers;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -23,9 +24,10 @@ import com.tp2.turnosrotativos.responses.GetListJornadaResponse;
 import com.tp2.turnosrotativos.services.EmpleadoService;
 import com.tp2.turnosrotativos.services.JornadaService;
 import com.tp2.turnosrotativos.services.TipoJornadaService;
-import com.tp2.turnosrotativos.validators.DaysValidator;
 import com.tp2.turnosrotativos.validators.JornadaValidator;
+import com.tp2.turnosrotativos.validators.JornadasWeek;
 import com.tp2.turnosrotativos.validators.LaboralDay;
+import static com.tp2.turnosrotativos.utils.Util.getSemanalHours;
 
 @Controller
 @RequestMapping(path="/jornada")
@@ -40,44 +42,49 @@ public class JornadaController {
 	@Autowired
 	private TipoJornadaService tipoJornadaService;
 	
-	private DaysValidator daysValidator = new DaysValidator();
 	private JornadaValidator jornadaValidator = new JornadaValidator();
 	private TipoJornadaEnum tipo;
 	
 	/*
 	 * Agrega jornada para un empleado
 	 * */
-	@PostMapping("/add/{empleado-id}")
-	public ResponseEntity<?> create(@PathVariable("empleado-id") Long empleadoId, @RequestBody PostJornadaRequest jornadaDTO){
-		List<LaboralDay> listLaboralDay = jornadaService.listSemanaLaboral(jornadaDTO, empleadoId);
+	@PostMapping("/add/{dni}")
+	public ResponseEntity<?> create(@PathVariable("dni") String dni, @RequestBody PostJornadaRequest jornadaDTO){
+		List<LaboralDay> listLaboralDay = jornadaService.listSemanaLaboral(jornadaDTO, dni);
 		
-		List<Jornada> listDay = jornadaService.findByFechaAndEmpleadoId(jornadaDTO.getFecha(), empleadoId);
-		if (!jornadaValidator.isValid(listDay, jornadaDTO)) {
-			return new ResponseEntity("La jornada para este dia ya fue cargado", HttpStatus.ALREADY_REPORTED);
+		List<Jornada> listDay = jornadaService.findByFechaAndEmpleadoDni(jornadaDTO.getFecha(), dni);
+		if (!jornadaValidator.isValidJornada(listDay, jornadaDTO)) {
+			return new ResponseEntity("La jornada para este dia ya fue cargado", HttpStatus.BAD_REQUEST);
 		}
 		
-			
-		/*
-			// si supera las 48 horas semanales
-			if (daysValidator.getSemanalHours(listLaboralDay) > 48){
-				return new ResponseEntity("Se superan la cantidad de horas semanal, cargado: " + daysValidator.getSemanalHours(listLaboralDay), HttpStatus.NOT_ACCEPTABLE);
-			}
-			// validacion de turno normal entre 6 y 8
-			if (jornadaDTO.getTipo().equals(tipo.TURNO_NORMAL.description) 
-					&& (daysValidator.getHours(jornadaDTO) < 6 || daysValidator.getHours(jornadaDTO) > 8)) {
-				return new ResponseEntity("Cantidad de horas diarias de turno normal debe ser entre 6 y 8", HttpStatus.NOT_ACCEPTABLE);
-			} 
-			// sino valida si extra es entre 2 y 6 horas
-			else if (jornadaDTO.getTipo().equals(tipo.TURNO_EXTRA.description)
-					&& (daysValidator.getHours(jornadaDTO) < 2 || daysValidator.getHours(jornadaDTO) > 6)){
-				return new ResponseEntity("Cantidad de horas diarias de turno extra debe ser entre 2 y 6", HttpStatus.NOT_ACCEPTABLE);
-			}*/
+		// validacion no puede haber mas de 2 empleado por turno
+		if (jornadaService.countDateAndTipo(jornadaDTO.getFecha(), jornadaDTO.getTipo()) == 2) {
+			return new ResponseEntity("Ya tiene 2 empleados para esta fecha con el tipo de jornada: " + jornadaDTO.getTipo(), HttpStatus.BAD_REQUEST);
+		}
+		
+		// validacion del dia libre
+		String mensaje = jornadaValidator.isDiaLibre(jornadaDTO, jornadaService.listJornadaSemanal(jornadaDTO.getFecha(), dni));
+		if (!mensaje.equals("isValid")) {
+			return new ResponseEntity(mensaje, HttpStatus.BAD_REQUEST);
+		}
+		
+		// si supera las 48 horas semanales
+		if (getSemanalHours(listLaboralDay) > 48){
+			return new ResponseEntity("Se superan la cantidad de horas semanal, cargado: " + getSemanalHours(listLaboralDay), HttpStatus.BAD_REQUEST);
+		}
+		
+		// validacion de horas
+		mensaje = jornadaValidator.isValidHoras(listDay, jornadaDTO);
+		if (!mensaje.equals("isValid")) {
+			return new ResponseEntity(mensaje, HttpStatus.BAD_REQUEST);
+		}
 		
 		Jornada jornada = new Jornada();
-		jornada.setEmpleado(empleadoService.findById(empleadoId).get());
+		jornada.setEmpleado(empleadoService.findByDni(dni));
 		jornada.setFecha(jornadaDTO.getFecha());
 		jornada.setHoraEntrada(jornadaDTO.getHoraEntrada());
 		jornada.setHoraSalida(jornadaDTO.getHoraSalida());
+		System.out.println(jornadaDTO.getTipo());
 		jornada.setTipoJornada(tipoJornadaService.findByTipo(tipo.valueOfDescription(jornadaDTO.getTipo())));
 		jornadaService.save(jornada);
 

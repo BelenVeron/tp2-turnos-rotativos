@@ -2,7 +2,6 @@ package com.tp2.turnosrotativos.controllers;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -16,10 +15,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.tp2.turnosrotativos.entities.Empleado;
 import com.tp2.turnosrotativos.entities.Jornada;
+import com.tp2.turnosrotativos.requests.PostAddEmpleadoRequest;
 import com.tp2.turnosrotativos.responses.GetHorasCargadasResponse;
 import com.tp2.turnosrotativos.services.EmpleadoService;
 import com.tp2.turnosrotativos.services.JornadaService;
-import com.tp2.turnosrotativos.validators.DaysValidator;
+import com.tp2.turnosrotativos.validators.EmpleadoValidator;
+
+import static com.tp2.turnosrotativos.utils.Util.getHours;
 
 import static java.time.temporal.ChronoUnit.MINUTES;;
 
@@ -34,23 +36,57 @@ public class EmpleadoController {
 	@Autowired
 	private JornadaService jornadaService;
 	
-	private DaysValidator daysValidator = new DaysValidator();
+	private EmpleadoValidator empleadoValidator = new EmpleadoValidator();
 	
+	/*
+	 * Se agrega empleado
+	 * 
+	 */
 	@PostMapping("/add")
-	public ResponseEntity<?> create(@RequestBody Empleado empleado){
+	public ResponseEntity<?> create(@RequestBody PostAddEmpleadoRequest empleadoDTO){
+		
+		// diferentes validaciones para los campos
+		String mensaje = empleadoValidator.isValid(empleadoDTO);
+		if (!mensaje.equals("isValid")) {
+			return new ResponseEntity(mensaje, HttpStatus.BAD_REQUEST);
+		}
+		
+		// dni solo puede ser unico
+		if (empleadoService.existsByDni(empleadoDTO.getDni())) {
+			return new ResponseEntity("El dni ya se encuentra guardado", HttpStatus.BAD_REQUEST);
+		}
+		
+		Empleado empleado = new Empleado();
+		empleado.setNombre(empleadoDTO.getNombre());
+		empleado.setApellido(empleadoDTO.getApellido());
+		empleado.setDni(empleadoDTO.getDni());
+		
 		empleadoService.save(empleado);
 		return new ResponseEntity(empleado, HttpStatus.OK);
 	}
 	
+	/*
+	 * Lista los empleados guardados
+	 * 
+	 */
 	@GetMapping("/list-empleados")
 	public ResponseEntity<List<Empleado>> listAll(){
 		List<Empleado> list = empleadoService.list();
 		return new ResponseEntity(list, HttpStatus.OK);
 	}
 	
-	@GetMapping("/list-horas-cargadas/{empleado-id}")
-	public ResponseEntity<List<GetHorasCargadasResponse>> listHorasCargadas(@PathVariable("empleado-id") Long empleadoId){
-		List<Jornada> jornadas = jornadaService.list(empleadoId);
+	/*
+	 * Lista la cantidad de horas guardadas por tipo de jornada utilizando el dni
+	 * 
+	 */
+	@GetMapping("/list-horas-cargadas/{dni}")
+	public ResponseEntity<List<GetHorasCargadasResponse>> listHorasCargadas(@PathVariable("dni") String dni){
+		
+		if (!empleadoService.existsByDni(dni)) {
+			return new ResponseEntity("No se encuentra el empleado con este dni cargado", HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		
+		List<Jornada> jornadas = jornadaService.list(empleadoService.findByDni(dni).getId());
 		List<GetHorasCargadasResponse> response = new ArrayList<GetHorasCargadasResponse>();
 
 		// recorre las jornadas del empleado
@@ -60,7 +96,7 @@ public class EmpleadoController {
 				.filter(element -> element.getTipo().equals(jornada.getTipoJornada().getTipo()))
 				.findFirst().isPresent()) {
 				GetHorasCargadasResponse newTipo = new GetHorasCargadasResponse();
-				newTipo.setHorasCargadas(daysValidator.getHours(jornada));
+				newTipo.setHorasCargadas(getHours(jornada));
 				newTipo.setTipo(jornada.getTipoJornada().getTipo());
 				
 				response.add(newTipo);
@@ -70,7 +106,7 @@ public class EmpleadoController {
 					.forEach(element -> {
 						if(element.getTipo() == jornada.getTipoJornada().getTipo()) {
 							element.setHorasCargadas(
-									element.getHorasCargadas() + (daysValidator.getHours(jornada))
+									element.getHorasCargadas() + (getHours(jornada))
 									);
 						}
 					});

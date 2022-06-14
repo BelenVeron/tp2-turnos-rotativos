@@ -8,4 +8,8 @@ import com.tp2.turnosrotativos.entities.Empleado;
 @Repository
 public interface EmpleadoRepository extends JpaRepository<Empleado, Long> {
 
+	boolean existsByDni(String dni);
+
+	Empleado findByDni(String dni);
+
 }

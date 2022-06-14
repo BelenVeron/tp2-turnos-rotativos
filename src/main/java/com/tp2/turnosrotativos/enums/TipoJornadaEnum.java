@@ -5,7 +5,7 @@ public enum TipoJornadaEnum {
 	TURNO_EXTRA("Turno Extra"),
 	VACACIONES("Vacaciones"),
 	DIA_LIBRE("Dia Libre"),
-	TURNO_NORMAL("Turno normal");
+	TURNO_NORMAL("Turno Normal");
 	
 	public final String description;
 
