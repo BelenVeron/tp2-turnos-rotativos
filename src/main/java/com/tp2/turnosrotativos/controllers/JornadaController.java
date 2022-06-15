@@ -1,11 +1,10 @@
 package com.tp2.turnosrotativos.controllers;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -16,7 +15,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import com.tp2.turnosrotativos.entities.Empleado;
 import com.tp2.turnosrotativos.entities.Jornada;
 import com.tp2.turnosrotativos.enums.TipoJornadaEnum;
 import com.tp2.turnosrotativos.requests.PostJornadaRequest;
@@ -25,7 +23,6 @@ import com.tp2.turnosrotativos.services.EmpleadoService;
 import com.tp2.turnosrotativos.services.JornadaService;
 import com.tp2.turnosrotativos.services.TipoJornadaService;
 import com.tp2.turnosrotativos.validators.JornadaValidator;
-import com.tp2.turnosrotativos.validators.JornadasWeek;
 import com.tp2.turnosrotativos.validators.LaboralDay;
 import static com.tp2.turnosrotativos.utils.Util.getSemanalHours;
 
@@ -63,9 +60,15 @@ public class JornadaController {
 		}
 		
 		// validacion del dia libre
-		String mensaje = jornadaValidator.isDiaLibre(jornadaDTO, jornadaService.listJornadaSemanal(jornadaDTO.getFecha(), dni));
+		String mensaje = jornadaValidator.isTipoJornada(jornadaDTO, jornadaService.listJornadaSemanal(jornadaDTO.getFecha(), dni));
 		if (!mensaje.equals("isValid")) {
-			return new ResponseEntity(mensaje, HttpStatus.BAD_REQUEST);
+			// resetea las horas a null si son dia libre o vacaciones
+			if (mensaje.equals("resetNull")) {
+				jornadaDTO.setHoraEntrada(null);
+				jornadaDTO.setHoraSalida(null);
+			} else {
+				return new ResponseEntity(mensaje, HttpStatus.BAD_REQUEST);
+			}
 		}
 		
 		// si supera las 48 horas semanales
@@ -79,6 +82,8 @@ public class JornadaController {
 			return new ResponseEntity(mensaje, HttpStatus.BAD_REQUEST);
 		}
 		
+		
+		
 		Jornada jornada = new Jornada();
 		jornada.setEmpleado(empleadoService.findByDni(dni));
 		jornada.setFecha(jornadaDTO.getFecha());
@@ -91,8 +96,9 @@ public class JornadaController {
 		return new ResponseEntity(jornada, HttpStatus.OK);
 	}
 	
-	@GetMapping("/list-jornadas/{empleado-id}")
-	public ResponseEntity<List<Jornada>> listAll(@PathVariable("empleado-id") Long empleadoId){
+	@GetMapping("/list-jornadas/{dni}")
+	public ResponseEntity<List<Jornada>> listAll(@PathVariable("dni") String dni){
+		Long empleadoId = empleadoService.findByDni(dni).getId();
 		List<Jornada> listJornada = jornadaService.list(empleadoId);
 		List<GetListJornadaResponse> list = new ArrayList<GetListJornadaResponse>();
 		listJornada.stream().forEach(

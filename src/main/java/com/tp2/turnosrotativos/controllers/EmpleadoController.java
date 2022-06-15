@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.tp2.turnosrotativos.entities.Empleado;
 import com.tp2.turnosrotativos.entities.Jornada;
+import com.tp2.turnosrotativos.enums.TipoJornadaEnum;
 import com.tp2.turnosrotativos.requests.PostAddEmpleadoRequest;
 import com.tp2.turnosrotativos.responses.GetHorasCargadasResponse;
 import com.tp2.turnosrotativos.services.EmpleadoService;
@@ -22,8 +23,7 @@ import com.tp2.turnosrotativos.services.JornadaService;
 import com.tp2.turnosrotativos.validators.EmpleadoValidator;
 
 import static com.tp2.turnosrotativos.utils.Util.getHours;
-
-import static java.time.temporal.ChronoUnit.MINUTES;;
+import static com.tp2.turnosrotativos.utils.Util.isLaboralType;
 
 
 @Controller
@@ -91,26 +91,35 @@ public class EmpleadoController {
 
 		// recorre las jornadas del empleado
 		jornadas.stream().forEach(jornada -> {
-			// si no se cargo el tipo dentro de la respuesta, se carga
-			if (response.isEmpty() || !response.stream()
-				.filter(element -> element.getTipo().equals(jornada.getTipoJornada().getTipo()))
-				.findFirst().isPresent()) {
-				GetHorasCargadasResponse newTipo = new GetHorasCargadasResponse();
-				newTipo.setHorasCargadas(getHours(jornada));
-				newTipo.setTipo(jornada.getTipoJornada().getTipo());
+			
+			// solo se mostrarian las horas de los tipos de jornadas que son laborales
+			if (isLaboralType(jornada)) {
 				
-				response.add(newTipo);
-			}else {
-				// si ya se cargo, se suma
-				response.stream()
-					.forEach(element -> {
-						if(element.getTipo() == jornada.getTipoJornada().getTipo()) {
-							element.setHorasCargadas(
-									element.getHorasCargadas() + (getHours(jornada))
-									);
-						}
-					});
+				// si no se cargo el tipo dentro de la respuesta, se carga
+				if (response.isEmpty() || !response.stream()
+					.filter(element -> element.getTipo().equals(jornada.getTipoJornada().getTipo()) 
+							)
+					.findFirst().isPresent()) {
+					GetHorasCargadasResponse newTipo = new GetHorasCargadasResponse();
+					newTipo.setHorasCargadas(getHours(jornada));
+					newTipo.setTipo(jornada.getTipoJornada().getTipo());
+					
+					response.add(newTipo);
+				}else {
+					// si ya se cargo, se suma
+					response.stream()
+						.forEach(element -> {
+							if(element.getTipo().equals(jornada.getTipoJornada().getTipo())) {
+								element.setHorasCargadas(
+										element.getHorasCargadas() + (getHours(jornada))
+										);
+							}
+						});
+				}
+				
 			}
+			
+			
 		});
 		
 		return new ResponseEntity(response, HttpStatus.OK);

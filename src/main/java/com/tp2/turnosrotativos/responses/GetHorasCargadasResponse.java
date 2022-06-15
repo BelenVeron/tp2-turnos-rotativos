@@ -5,14 +5,11 @@ import com.tp2.turnosrotativos.enums.TipoJornadaEnum;
 public class GetHorasCargadasResponse {
 	
 	private TipoJornadaEnum tipo;
-	private Float horasCargadas;
+	private float horasCargadas;
 	
-	public GetHorasCargadasResponse(TipoJornadaEnum tipo, Float horasCargadas) {
-		this.tipo = tipo;
-		this.horasCargadas = horasCargadas;
-	}
 
-	public GetHorasCargadasResponse() {
+	public void setHorasCargadas(float horasCargadas) {
+		this.horasCargadas = horasCargadas;
 	}
 
 	public TipoJornadaEnum getTipo() {

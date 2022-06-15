@@ -1,9 +1,8 @@
 package com.tp2.turnosrotativos.validators;
 
 import java.util.List;
+import java.util.Objects;
 
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 
 import com.tp2.turnosrotativos.entities.Jornada;
 import com.tp2.turnosrotativos.enums.TipoJornadaEnum;
@@ -39,6 +38,7 @@ public class JornadaValidator {
 					) {
 				return false;
 			}
+			
 		
 		}
 					
@@ -48,6 +48,18 @@ public class JornadaValidator {
 	
 	// retorna mensaje de error, si es valido retorna isValid
 	public String isValidHoras(List<Jornada> listDay, PostJornadaRequest jornadaDTO) {
+		
+		// escapa de la validacion ya que al ser vacaciones o dia libre no se 
+		// cargan horas
+		if (jornadaDTO.getTipo().equals(TipoJornadaEnum.VACACIONES.description) 
+				|| jornadaDTO.getTipo().equals(TipoJornadaEnum.DIA_LIBRE.description)){
+			return "isValid";
+		}
+		
+		// la hora de entrada debe ser menor que la de salida
+		if (jornadaDTO.getHoraSalida().compareTo(jornadaDTO.getHoraEntrada()) <= 0) {
+			return "La hora de salida no puede ser igual o menor a la de entrada";
+		}
 
 		// validacion de turno normal entre 6 y 8
 		if (jornadaDTO.getTipo().equals(TipoJornadaEnum.TURNO_NORMAL.description) 
@@ -77,13 +89,19 @@ public class JornadaValidator {
 	}
 
 
-	// valida si tiene 2 dias libres en la semana
-	public String isDiaLibre(PostJornadaRequest jornadaDTO, List<JornadasWeek> listJornadaSemanal) {
+	
+	public String isTipoJornada(PostJornadaRequest jornadaDTO, List<JornadasWeek> listJornadaSemanal) {
 		
+		// valida que el tipo jornada sea uno de los del enum
+		if (Objects.isNull(TipoJornadaEnum.valueOfDescription(jornadaDTO.getTipo()))) {
+			return "El tipo de jornada no coincide con los posibles tipos";
+		}
+		
+		// valida si tiene 2 dias libres en la semana
 		if (jornadaDTO.getTipo().equals(TipoJornadaEnum.DIA_LIBRE.description)){
 			if (listJornadaSemanal.stream()
 					.mapToInt(element -> {
-						if ((element.getJornadaDay().get(0).getTipoJornada().getTipo().equals(TipoJornadaEnum.DIA_LIBRE))) 
+						if (!element.getJornadaDay().isEmpty() && element.getJornadaDay().get(0).getTipoJornada().getTipo().equals(TipoJornadaEnum.DIA_LIBRE)) 
 							return 1;
 						else
 							return 0;
@@ -91,6 +109,14 @@ public class JornadaValidator {
 					) {
 				return "No se puede cargar mas de 2 dias libres por semana";
 			}
+		}
+		
+		// no se pueden agregar horas si es dia libre ni vacaciones, se setean a null
+		if ((jornadaDTO.getTipo().equals(TipoJornadaEnum.VACACIONES.description) 
+				|| jornadaDTO.getTipo().equals(TipoJornadaEnum.DIA_LIBRE.description))
+			&& (!Objects.isNull(jornadaDTO.getHoraEntrada()) || !Objects.isNull(jornadaDTO.getHoraSalida()))
+						){
+			return "resetNull";			
 		}
 			
 		return "isValid";

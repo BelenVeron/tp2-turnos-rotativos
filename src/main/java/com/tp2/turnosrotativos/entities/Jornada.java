@@ -25,6 +25,7 @@ public class Jornada {
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Long id;
 	
+	@NotNull
 	@JsonFormat(pattern="dd-MM-yyyy")
     private LocalDate fecha;
 	
