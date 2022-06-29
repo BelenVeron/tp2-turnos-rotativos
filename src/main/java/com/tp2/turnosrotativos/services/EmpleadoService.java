@@ -13,5 +13,6 @@ public interface EmpleadoService {
 	public boolean existsByDni(String dni);
 	public boolean existsById(Long empleadoId);
 	public Empleado findByDni(String dni);
+	public void delete(Long id);
 
 }

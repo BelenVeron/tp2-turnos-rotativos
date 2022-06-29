@@ -48,4 +48,9 @@ public class EmpleadoServiceImp implements EmpleadoService {
 		return repository.findByDni(dni);
 	}
 
+	@Override
+	public void delete(Long id) {
+		repository.deleteById(id);
+	}
+
 }

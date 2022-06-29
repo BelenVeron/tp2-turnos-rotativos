@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -23,6 +24,7 @@ import com.tp2.turnosrotativos.services.EmpleadoService;
 import com.tp2.turnosrotativos.services.JornadaService;
 import com.tp2.turnosrotativos.services.TipoJornadaService;
 import com.tp2.turnosrotativos.validators.JornadaValidator;
+import com.tp2.turnosrotativos.validators.JornadasWeek;
 import com.tp2.turnosrotativos.validators.LaboralDay;
 import static com.tp2.turnosrotativos.utils.Util.getSemanalHours;
 
@@ -48,19 +50,12 @@ public class JornadaController {
 	@PostMapping("/add/{dni}")
 	public ResponseEntity<?> create(@PathVariable("dni") String dni, @RequestBody PostJornadaRequest jornadaDTO){
 		List<LaboralDay> listLaboralDay = jornadaService.listSemanaLaboral(jornadaDTO, dni);
-		
 		List<Jornada> listDay = jornadaService.findByFechaAndEmpleadoDni(jornadaDTO.getFecha(), dni);
-		if (!jornadaValidator.isValidJornada(listDay, jornadaDTO)) {
-			return new ResponseEntity("La jornada para este dia ya fue cargado", HttpStatus.BAD_REQUEST);
-		}
-		
-		// validacion no puede haber mas de 2 empleado por turno
-		if (jornadaService.countDateAndTipo(jornadaDTO.getFecha(), jornadaDTO.getTipo()) == 2) {
-			return new ResponseEntity("Ya tiene 2 empleados para esta fecha con el tipo de jornada: " + jornadaDTO.getTipo(), HttpStatus.BAD_REQUEST);
-		}
-		
-		// validacion del dia libre
-		String mensaje = jornadaValidator.isTipoJornada(jornadaDTO, jornadaService.listJornadaSemanal(jornadaDTO.getFecha(), dni));
+		List<JornadasWeek> listJornadaSemana = jornadaService.listJornadaSemanal(jornadaDTO.getFecha(), dni);
+		int cantPorTurno = jornadaService.countDateAndTipo(jornadaDTO.getFecha(), jornadaDTO.getTipo());
+
+		// carga el mensaje de acuerdo a la validacion
+		String mensaje = jornadaValidator.isValidAddJornada(listDay, jornadaDTO, listJornadaSemana, cantPorTurno, listLaboralDay);
 		if (!mensaje.equals("isValid")) {
 			// resetea las horas a null si son dia libre o vacaciones
 			if (mensaje.equals("resetNull")) {
@@ -71,25 +66,11 @@ public class JornadaController {
 			}
 		}
 		
-		// si supera las 48 horas semanales
-		if (getSemanalHours(listLaboralDay) > 48){
-			return new ResponseEntity("Se superan la cantidad de horas semanal, cargado: " + getSemanalHours(listLaboralDay), HttpStatus.BAD_REQUEST);
-		}
-		
-		// validacion de horas
-		mensaje = jornadaValidator.isValidHoras(listDay, jornadaDTO);
-		if (!mensaje.equals("isValid")) {
-			return new ResponseEntity(mensaje, HttpStatus.BAD_REQUEST);
-		}
-		
-		
-		
 		Jornada jornada = new Jornada();
 		jornada.setEmpleado(empleadoService.findByDni(dni));
 		jornada.setFecha(jornadaDTO.getFecha());
 		jornada.setHoraEntrada(jornadaDTO.getHoraEntrada());
 		jornada.setHoraSalida(jornadaDTO.getHoraSalida());
-		System.out.println(jornadaDTO.getTipo());
 		jornada.setTipoJornada(tipoJornadaService.findByTipo(tipo.valueOfDescription(jornadaDTO.getTipo())));
 		jornadaService.save(jornada);
 
@@ -116,10 +97,49 @@ public class JornadaController {
 
 	@PutMapping("/update/{jornada-id}")
 	public ResponseEntity<Jornada> updateJornada(@PathVariable("jornada-id") Long jornadaId, @RequestBody PostJornadaRequest jornadaDTO){
+		int cantPorTurno = jornadaService.countDateAndTipo(jornadaDTO.getFecha(), jornadaDTO.getTipo());
+		
+		if (!jornadaService.existsById(jornadaId)) {
+			return new ResponseEntity("La jornada ingresada no existe en la base de datos", HttpStatus.BAD_REQUEST);
+		}
+		
 		Jornada jornada = jornadaService.findById(jornadaId).get();
+		String dni = jornada.getEmpleado().getDni();
+		List<LaboralDay> listLaboralDay = jornadaService.listSemanaLaboral(jornadaDTO, dni);
+		List<Jornada> listDay = jornadaService.findByFechaAndEmpleadoDni(jornadaDTO.getFecha(), dni);
+		List<JornadasWeek> listJornadaSemana = jornadaService.listJornadaSemanal(jornadaDTO.getFecha(), dni);
+		
+		// carga el mensaje de acuerdo a la validacion
+		String mensaje = jornadaValidator.isValidUpdateJornada(listDay, jornadaDTO, listJornadaSemana, cantPorTurno, listLaboralDay, jornada.getId());
+		if (!mensaje.equals("isValid")) {
+			// resetea las horas a null si son dia libre o vacaciones
+			if (mensaje.equals("resetNull")) {
+				jornadaDTO.setHoraEntrada(null);
+				jornadaDTO.setHoraSalida(null);
+			} else {
+				return new ResponseEntity(mensaje, HttpStatus.BAD_REQUEST);
+			}
+		}
+		
 		jornada.setHoraEntrada(jornadaDTO.getHoraEntrada());
 		jornada.setHoraSalida(jornadaDTO.getHoraSalida());
 		
 		return new ResponseEntity(jornada, HttpStatus.OK);
+	}
+	
+	/*
+	 * Elimina la jornada
+	 * 
+	 */
+	@DeleteMapping("/delete/{id}")
+	public ResponseEntity<?> deleteJornada(@PathVariable("id") Long id){
+		
+		if (!jornadaService.existsById(id)) {
+			return new ResponseEntity("No se encuentra esta jornada cargada", HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		
+		jornadaService.delete(id);
+		
+		return new ResponseEntity("La jornada fue eliminada", HttpStatus.OK);
 	}
 }

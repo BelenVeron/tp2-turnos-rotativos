@@ -38,4 +38,14 @@ public class TipoJornadaServiceImp implements TipoJornadaService{
 		return repository.existsByTipo(TipoJornadaEnum.valueOfDescription(tipo));
 	}
 
+	@Override
+	public boolean existsById(Long id) {
+		return repository.existsById(id);
+	}
+
+	@Override
+	public void deleteById(Long id) {
+		repository.deleteById(id);
+	}
+
 }

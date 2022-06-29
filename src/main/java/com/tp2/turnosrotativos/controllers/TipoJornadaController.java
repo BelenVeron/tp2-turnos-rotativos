@@ -7,7 +7,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -54,6 +56,20 @@ public class TipoJornadaController {
 	public ResponseEntity<List<TipoJornada>> listAll(){
 		List<TipoJornada> list = service.list();
 		return new ResponseEntity(list, HttpStatus.OK);
+	}
+	
+	/*
+	 * Elimina el tipo de jornada
+	 * */
+	@DeleteMapping("/delete/{id}")
+	public ResponseEntity<?> deleteTipoJornada(@PathVariable("id") Long id){
+		if (!service.existsById(id)) {
+			return new ResponseEntity("No se encuentra el tipo de jornada cargado", HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		
+		service.deleteById(id);
+		
+		return new ResponseEntity("El tipo de jornada fue eliminado", HttpStatus.OK);
 	}
 
 }

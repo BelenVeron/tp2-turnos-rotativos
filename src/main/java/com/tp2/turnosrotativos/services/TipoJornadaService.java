@@ -11,4 +11,6 @@ public interface TipoJornadaService {
 	public List<TipoJornada> list();
 	public TipoJornada findByTipo(TipoJornadaEnum tipoJornadaEnum);
 	public boolean existsByTipo(String tipo);
+	public boolean existsById(Long id);
+	public void deleteById(Long id);
 }

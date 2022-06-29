@@ -33,7 +33,7 @@ public class Util {
 		
 	// obtiene las horas del dia laboral
 	public static float getHours (Jornada jornada) {
-		if (Objects.isNull(jornada.getHoraEntrada()) || Objects.isNull(jornada.getHoraSalida())) {
+		if (Objects.isNull(jornada) || Objects.isNull(jornada.getHoraEntrada()) || Objects.isNull(jornada.getHoraSalida())) {
 			return 0;
 		}
 		return (float) (MINUTES.between(jornada.getHoraEntrada(), jornada.getHoraSalida()))/60;

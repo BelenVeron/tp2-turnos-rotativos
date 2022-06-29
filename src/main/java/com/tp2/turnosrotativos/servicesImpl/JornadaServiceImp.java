@@ -110,4 +110,14 @@ public class JornadaServiceImp implements JornadaService{
 		return repository.findByFechaAndEmpleadoDni(fecha, dni);
 	}
 
+	@Override
+	public boolean existsById(Long jornadaId) {
+		return repository.existsById(jornadaId);
+	}
+
+	@Override
+	public void delete(Long id) {
+		repository.deleteById(id);
+	}
+
 }

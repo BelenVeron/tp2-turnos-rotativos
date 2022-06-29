@@ -19,5 +19,7 @@ public interface JornadaService {
 	public int countDateAndTipo(LocalDate fecha, String tipo);
 	public List<LaboralDay> listSemanaLaboral(PostJornadaRequest jornadaDTO, String dni);
 	public List<Jornada> findByFechaAndEmpleadoDni(LocalDate fecha, String dni);
+	public boolean existsById(Long jornadaId);
+	public void delete(Long id);
 
 }
