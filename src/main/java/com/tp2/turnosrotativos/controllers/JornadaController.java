@@ -29,7 +29,7 @@ import com.tp2.turnosrotativos.validators.JornadasWeek;
 import com.tp2.turnosrotativos.validators.LaboralDay;
 import static com.tp2.turnosrotativos.utils.Util.getSemanalHours;
 
-@CrossOrigin
+@CrossOrigin(origins = "https://turnos-rotativos.herokuapp.com")
 @Controller
 @RequestMapping(path="/jornada")
 public class JornadaController {
