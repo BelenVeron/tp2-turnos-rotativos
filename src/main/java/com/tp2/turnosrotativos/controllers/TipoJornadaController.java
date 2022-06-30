@@ -21,7 +21,7 @@ import com.tp2.turnosrotativos.responses.PostCreateTipoJornadaRequest;
 import com.tp2.turnosrotativos.services.TipoJornadaService;
 import com.tp2.turnosrotativos.validators.TipoJornadaValidator;
 
-@CrossOrigin(origins = "https://turnos-rotativos.herokuapp.com")
+
 @Controller
 @RequestMapping(path="/tipo-jornada")
 public class TipoJornadaController {

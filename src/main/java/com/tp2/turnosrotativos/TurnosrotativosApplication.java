@@ -18,7 +18,7 @@ public class TurnosrotativosApplication {
 		SpringApplication.run(TurnosrotativosApplication.class, args);
 	}
 
-	@Bean
+	/*@Bean
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(Arrays.asList("https://app-portfolio-backend-1.herokuapp.com"));
@@ -29,5 +29,14 @@ public class TurnosrotativosApplication {
         final UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;
-    }
+    }*/
+	/*@Bean
+    public WebMvcConfigurer corsConfigurer() {
+        return new WebMvcConfigurer() {
+            @Override
+            public void addCorsMappings(CorsRegistry registry) {
+                registry.addMapping("/**").allowedOrigins("*").allowedMethods("GET", "POST","PUT", "DELETE");
+            }
+        };
+    }*/
 }

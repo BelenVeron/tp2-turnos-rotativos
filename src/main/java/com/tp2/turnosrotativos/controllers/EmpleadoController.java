@@ -27,7 +27,7 @@ import com.tp2.turnosrotativos.validators.EmpleadoValidator;
 import static com.tp2.turnosrotativos.utils.Util.getHours;
 import static com.tp2.turnosrotativos.utils.Util.isLaboralType;
 
-@CrossOrigin(origins = "https://turnos-rotativos.herokuapp.com")
+
 @Controller
 @RequestMapping(path="/empleado")
 public class EmpleadoController {
